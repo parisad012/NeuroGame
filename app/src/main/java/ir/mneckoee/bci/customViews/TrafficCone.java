@@ -60,8 +60,10 @@ public class TrafficCone extends androidx.appcompat.widget.AppCompatImageView {
         return isRunning;
     }
      public void changeImage(){
+//        if (animation!=null)
+//        animation.cancel();
 
-       setImageResource(R.drawable.cone2);
+      setImageResource(R.drawable.cone2);
      }
 
     Animator.AnimatorListener animatorListener=new Animator.AnimatorListener() {

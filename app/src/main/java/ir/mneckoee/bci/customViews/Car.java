@@ -32,7 +32,7 @@ public class Car extends androidx.appcompat.widget.AppCompatImageView {
 
     public void init(){
         isRunning=false;
-        setImageResource(R.drawable.ic_launcher_background);
+        setImageResource(R.drawable.car1);
         animation = ObjectAnimator.ofFloat(this, "translationX",230f);
         animation.setDuration(1000);
         animation.addListener(animatorListener);

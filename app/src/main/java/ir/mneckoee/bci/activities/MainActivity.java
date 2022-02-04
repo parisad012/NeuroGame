@@ -1,4 +1,4 @@
-package ir.mneckoee.bci;
+package ir.mneckoee.bci.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,6 +27,7 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import ir.mneckoee.bci.R;
 import ir.mneckoee.bci.customViews.Car;
 import ir.mneckoee.bci.customViews.TrafficCone;
 import ir.mneckoee.bci.databinding.ActivityMainBinding;
@@ -177,11 +178,18 @@ public class MainActivity extends AppCompatActivity {
 //            timerTrafficCone.cancel();
 //        }
     }
+    //------------------------------------check accident
+    private boolean isAccident(TrafficCone cone,Car car){
+        if (((car.getX()+car.getWidth()>=cone.getX() && car.getX()<=cone.getX())
+                ||(car.getX()+car.getWidth()>=cone.getX() && cone.getX()+cone.getWidth()>=car.getX())) &&
+                cone.getHeight() + cone.getY() > car.getY() &&
+                cone.getY()<car.getY()) {return true;}
+        return false;
+    }
     //-------------------------------------start game
+    int counter;
     private void startGame(){
-       // Log.d("TAG", "startGame: ");
         if (timerTrafficCone==null) timerTrafficCone=new Timer();
-    //    if (timerTask==null) {
             timerTask = new TimerTask() {
                 @Override
                 public void run() {
@@ -189,13 +197,16 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void run() {
                             if (!isStop) {
-                                showTrafficCones();
-                                if (car.getX() - coneLeft.getX() <= coneLeft.getWidth() && car.getY() - coneLeft.getY() <= coneLeft.getHeight()) {
+                                counter=counter+100;
+                                if (counter>=2000) {
+                                    showTrafficCones();
+                                    counter=0;
+                                }
+                                if (isAccident(coneLeft,car)) {
                                     coneLeft.changeImage();
-                                    int s = score.getValue() - 1;
                                     score.postValue(score.getValue() - 1);
                                 }
-                                if (car.getX() - coneRight.getX() <= coneRight.getWidth() && car.getY() - coneRight.getY() <= coneRight.getHeight()) {
+                                if (isAccident(coneRight,car)) {
                                     coneRight.changeImage();
                                     score.postValue(score.getValue() - 1);
                                 }
@@ -205,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             };
             try {
-                timerTrafficCone.schedule(timerTask, 0, 1000);
+                timerTrafficCone.schedule(timerTask, 0, 100);
             }catch (Exception ex){
 
             }
