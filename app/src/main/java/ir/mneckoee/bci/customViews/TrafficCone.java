@@ -40,7 +40,7 @@ public class TrafficCone extends androidx.appcompat.widget.AppCompatImageView {
     public void init(){
         isRunning=false;
         setVisibility(INVISIBLE);
-        setImageResource(R.drawable.polygon1);
+        setImageResource(R.drawable.cone);
 //        animation = ObjectAnimator.ofFloat(this, "translationY",2000f);
 //        animation.setDuration(4000);
 //        animation.addListener(animatorListener);
@@ -53,7 +53,6 @@ public class TrafficCone extends androidx.appcompat.widget.AppCompatImageView {
         animation = ObjectAnimator.ofFloat(this, "translationY",2000f);
         animation.setDuration(2000);
         animation.addListener(animatorListener);
-       // animate().translationY(2000f).setDuration(4000).setListener(animatorListener).start();
         animation.start();
         isRunning= animation.isRunning();
     }
@@ -61,15 +60,8 @@ public class TrafficCone extends androidx.appcompat.widget.AppCompatImageView {
         return isRunning;
     }
      public void changeImage(){
-//         ObjectAnimator animation = ObjectAnimator.ofFloat(this, "rotationY",90f);
-//         animation.setDuration(100);
-//         animation.start();
 
-//         setRotationY(0f);
-//         animate().(90f).setDuration(1000).start();
-     //    animation.setDuration(6000);
-     //    animation.cancel();
-     //   setImageResource(R.drawable.polygon2);
+       setImageResource(R.drawable.cone2);
      }
 
     Animator.AnimatorListener animatorListener=new Animator.AnimatorListener() {
@@ -82,7 +74,8 @@ public class TrafficCone extends androidx.appcompat.widget.AppCompatImageView {
         public void onAnimationEnd(Animator animator) {
             isRunning=false;
             setVisibility(INVISIBLE);
-        //    setImageResource(R.drawable.polygon1);
+
+            setImageResource(R.drawable.cone);
            setY(0f);
         }
 

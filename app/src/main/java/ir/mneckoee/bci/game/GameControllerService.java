@@ -34,6 +34,7 @@ public class GameControllerService extends Service {
     private Timer timer,timerGame;
     private TimerTask task,taskGame;
     private int gameCounter;
+    int status;
     public GameControllerService() {
     }
 
@@ -83,6 +84,7 @@ public class GameControllerService extends Service {
     }
     //-----------------------------------------------------send message
     private void sendMessage(Messenger messenger,int what,Object obj){
+        status=what;
         Message msg=new Message();
         msg.obj = obj;
         msg.what = what;
@@ -103,9 +105,11 @@ public class GameControllerService extends Service {
         task = new TimerTask()  {
             @Override
             public void run() {
-                Bundle bundle=new Bundle();
-                bundle.putFloat(CONTROLLER_VALUE, neuroData(0,2));
-                sendMessage(messenger,MSG_SEND_DATA,bundle);
+                if (status==MSG_RUNNING || status==MSG_SEND_DATA) {
+                    Bundle bundle = new Bundle();
+                    bundle.putFloat(CONTROLLER_VALUE, neuroData(0, 2));
+                    sendMessage(messenger, MSG_SEND_DATA, bundle);
+                }
             }
         };
 
@@ -148,8 +152,8 @@ public class GameControllerService extends Service {
     //-----------------------------------------------------handle rest
     private void rest(Messenger messenger){
         sendMessage(messenger,MSG_REST,null);
-        if (timer!=null)
-            timer.cancel();
+//        if (timer!=null)
+//            timer.cancel();
     }
     //-----------------------------------------------------handle finish game
     //stopped
@@ -162,6 +166,7 @@ public class GameControllerService extends Service {
     //-----------------------------------------------------handle play
     //running
     private void play(Messenger messenger)  {
+
         sendMessage(messenger,MSG_RUNNING,null);
         //start sending neuro data
         sendData(messenger);
@@ -174,6 +179,7 @@ public class GameControllerService extends Service {
             switch (msg.what) {
                 case MSG_START_GAME:
                     try {
+                        status=MSG_START_GAME;
                         msg.replyTo.send(Message.obtain(null,
                                 MSG_RUNNING, msg.arg1, 0));
                         handleGame(msg.replyTo);
@@ -182,9 +188,11 @@ public class GameControllerService extends Service {
                     }
                     break;
                 case MSG_CLIENT_SCORE:
+                    status=MSG_CLIENT_SCORE;
                     //save score
                     break;
                 case MSG_FAILED_USER:
+                    status=MSG_FAILED_USER;
                     failed(0,"",msg.replyTo);
                     break;
                 default:

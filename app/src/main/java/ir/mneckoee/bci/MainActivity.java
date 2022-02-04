@@ -43,8 +43,7 @@ public class MainActivity extends AppCompatActivity {
     Car car;
     Button btnStart;
     TextView scoreTxt,statusTxt;
-
-    //Messenger for communicating with service.
+    boolean isStop;
     Messenger mService = null;
     MutableLiveData<Integer> score=new MutableLiveData<>();
     MutableLiveData<String> status=new MutableLiveData<>();
@@ -56,9 +55,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(view);
         getViewItems();
         handleBtnStart();
-
+        isStop=true;
         score.postValue(1000);
         status.postValue("waiting");
+        setObserver();
+    }
+
+    private void setObserver(){
         score.observe(this, new Observer<Integer>() {
             @Override
             public void onChanged(Integer integer) {
@@ -89,6 +92,7 @@ public class MainActivity extends AppCompatActivity {
                 startService(intent);
                 bindService(intent, mServiceConnection, Context.BIND_AUTO_CREATE);
                 btnStart.setText(R.string.stop);
+                score.setValue(1000);
                 }else{
                     failed();
                     btnStart.setText(R.string.start);
@@ -168,10 +172,10 @@ public class MainActivity extends AppCompatActivity {
     }
     //-------------------------------------stop game
     private void stopGame(){
-        if (timerTrafficCone!=null) {
-            timerTrafficCone.cancel();
-         //   timerTrafficCone.purge();
-        }
+        isStop=true;
+//        if (timerTrafficCone!=null) {
+//            timerTrafficCone.cancel();
+//        }
     }
     //-------------------------------------start game
     private void startGame(){
@@ -184,27 +188,26 @@ public class MainActivity extends AppCompatActivity {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            showTrafficCones();
-                            if (car.getX() - coneLeft.getX() <= coneLeft.getWidth() && car.getY() - coneLeft.getY() <= coneLeft.getHeight()) {
-                                coneLeft.changeImage();
-                                int s = score.getValue() - 1;
-                                score.postValue(score.getValue() - 1);
+                            if (!isStop) {
+                                showTrafficCones();
+                                if (car.getX() - coneLeft.getX() <= coneLeft.getWidth() && car.getY() - coneLeft.getY() <= coneLeft.getHeight()) {
+                                    coneLeft.changeImage();
+                                    int s = score.getValue() - 1;
+                                    score.postValue(score.getValue() - 1);
+                                }
+                                if (car.getX() - coneRight.getX() <= coneRight.getWidth() && car.getY() - coneRight.getY() <= coneRight.getHeight()) {
+                                    coneRight.changeImage();
+                                    score.postValue(score.getValue() - 1);
+                                }
                             }
-
-                            if (car.getX() - coneRight.getX() <= coneRight.getWidth() && car.getY() - coneRight.getY() <= coneRight.getHeight()) {
-                                coneRight.changeImage();
-                                score.postValue(score.getValue() - 1);
-                            }
-                            // testShowStatus(""+(score));
                         }
                     });
                 }
             };
             try {
-         //       Log.d("TAG", "startGame: ");
                 timerTrafficCone.schedule(timerTask, 0, 1000);
             }catch (Exception ex){
-                String str=ex.getMessage();
+
             }
      //   }
     }
@@ -241,12 +244,12 @@ public class MainActivity extends AppCompatActivity {
             switch (msg.what) {
                 case GameControllerService.MSG_RUNNING:
                     try {
+                        isStop=false;
                         status.setValue("running");
                         startGame();
                     }catch (Exception ex){
-                        String str=ex.getMessage();
+
                     }
-                //    coneLeft.moveDown();
                     break;
                 case GameControllerService.MSG_SEND_DATA:
                     Bundle bundle= (Bundle) msg.obj;
@@ -276,10 +279,5 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-//    /////////////////just for test
-//    private void testShowStatus(String txt){
-//    //  scoreTxt.setText(txt);
-//    }
 
-    ////////////////
 }
